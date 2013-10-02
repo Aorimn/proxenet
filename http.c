@@ -153,13 +153,15 @@ bool is_valid_http_request(char** request, size_t* request_len)
 		xlog(LOG_ERROR, "%s\n", "Cannot find path (must not be implicit)");
 		return false;
 	}
-	
+
+	/* Compute the new request length */
 	new_request_len = *request_len  - (new_ptr-old_ptr);
 	
-	for (i=0; i<new_request_len; i++)
+	/* Copy only the last part of the request (and the null byte) */
+	for (i = 0; i < new_request_len - (old_ptr - *request) + 1; i++)
 		*(old_ptr+i) = *(new_ptr+i);
 	
-	*request = proxenet_xrealloc(*request, new_request_len);
+	*request = proxenet_xrealloc(*request, new_request_len + 1);
 	*request_len = new_request_len;
 	
 	return true;
